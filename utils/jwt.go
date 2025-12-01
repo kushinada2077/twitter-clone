@@ -29,7 +29,7 @@ func GenerateToken(userID uint) (string, error) {
 }
 
 func ParseToken(tokenString string) (uint, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
@@ -40,11 +40,26 @@ func ParseToken(tokenString string) (uint, error) {
 		return 0, err
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		if id, ok := claims["user_id"].(float64); ok {
-			return uint(id), nil
-		}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return 0, errors.New("invalid token")
 	}
 
-	return 0, errors.New("invalid token")
+	expFloat, ok := claims["exp"].(float64)
+	if !ok {
+		return 0, errors.New("invalid exp in token")
+	}
+
+	exp := int64(expFloat)
+	if time.Now().Unix() > exp {
+		return 0, errors.New("token expired")
+	}
+
+	idFloat, ok := claims["user_id"].(float64)
+	if !ok {
+		return 0, errors.New("invalid user_id in token")
+	}
+
+	userID := uint(idFloat)
+	return userID, nil
 }
