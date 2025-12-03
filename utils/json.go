@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -15,11 +16,12 @@ func JSON(w http.ResponseWriter, code int, body interface{}) {
 	}
 }
 
-func Error(w http.ResponseWriter, code int, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
+func Error(w http.ResponseWriter, code int, message string, details ...any) {
+	if len(details) > 0 {
+		log.Printf("[ERROR] %s | details: %v", message, details)
+	} else {
+		log.Printf("[ERROR] %s", message)
+	}
 
-	resp := map[string]string{"error": message}
-
-	_ = json.NewEncoder(w).Encode(resp)
+	JSON(w, code, map[string]string{"error": message})
 }

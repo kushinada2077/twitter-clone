@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"twitter-clone/models"
@@ -11,55 +10,38 @@ import (
 	"gorm.io/gorm"
 )
 
-type SignupRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type SignupResponse struct {
-	Message string `json:"message"`
-	UserID  uint   `json:"user_id,omitempty"`
-}
-
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type LoginResponse struct {
-	Token string `json:"token"`
-}
-
 func SignupHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var req SignupRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, "invalid JSON", http.StatusBadRequest)
+			utils.Error(w, http.StatusBadRequest, "invalid JSON", err)
 			return
 		}
 
 		req.Username = strings.TrimSpace(req.Username)
 		if req.Username == "" || req.Password == "" {
-			http.Error(w, "username and password required", http.StatusBadRequest)
+			utils.Error(w, http.StatusBadRequest, "username and password required")
 			return
 		}
 		if len(req.Password) < 6 {
-			http.Error(w, "password must be at least 6 characters", http.StatusBadRequest)
+			utils.Error(w, http.StatusBadRequest, "password must be at least 6 characters")
+			return
 		}
 
 		var count int64
 		if err := db.Model(&models.User{}).Where("username = ?", req.Username).Count(&count).Error; err != nil {
-			http.Error(w, "server error", http.StatusInternalServerError)
+			utils.Error(w, http.StatusInternalServerError, "server error", err)
 			return
 		}
 		if count > 0 {
-			http.Error(w, "username already exists", http.StatusConflict)
+			utils.Error(w, http.StatusConflict, "username already exists")
+			return
 		}
 
 		hashed, err := utils.HashPassWord(req.Password)
 		if err != nil {
-			http.Error(w, "failed to hash password", http.StatusInternalServerError)
+			utils.Error(w, http.StatusInternalServerError, "server error", err)
 			return
 		}
 
@@ -69,16 +51,14 @@ func SignupHandler(db *gorm.DB) http.HandlerFunc {
 		}
 		if err := db.Create(&user).Error; err != nil {
 			if strings.Contains(err.Error(), "Duplicate") || strings.Contains(err.Error(), "duplicate") {
-				http.Error(w, "username already exists", http.StatusConflict)
+				utils.Error(w, http.StatusConflict, "Username already exists")
 				return
 			}
-			http.Error(w, "failed to create user", http.StatusInternalServerError)
+			utils.Error(w, http.StatusInternalServerError, "server error", err)
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		_ = json.NewEncoder(w).Encode(SignupResponse{
+		utils.JSON(w, http.StatusCreated, SignupResponse{
 			Message: "user created",
 			UserID:  user.ID,
 		})
@@ -90,13 +70,13 @@ func LoginHandler(db *gorm.DB) http.HandlerFunc {
 
 		var req LoginRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, "invalid JSON", http.StatusBadRequest)
+			utils.Error(w, http.StatusBadRequest, "invalid JSON", err)
 			return
 		}
 
 		req.Username = strings.TrimSpace(req.Username)
 		if req.Username == "" || req.Password == "" {
-			http.Error(w, "invalid username or password", http.StatusBadRequest)
+			utils.Error(w, http.StatusBadRequest, "invalid username or password")
 			return
 		}
 
@@ -105,21 +85,21 @@ func LoginHandler(db *gorm.DB) http.HandlerFunc {
 		}
 
 		if err := db.Where("username = ?", user.Username).First(&user).Error; err != nil {
-			http.Error(w, "invalid username or password", http.StatusUnauthorized)
+			utils.Error(w, http.StatusUnauthorized, "invalid username or password", err)
 			return
 		}
 
 		if err := utils.ComparePassword(user.PasswordHash, req.Password); err != nil {
-			http.Error(w, "invalid username or password", http.StatusUnauthorized)
+			utils.Error(w, http.StatusUnauthorized, "invalid username or password")
 			return
 		}
 
-		token := "token_user_" + fmt.Sprint(user.ID)
+		token, err := utils.GenerateToken(user.ID)
+		if err != nil {
+			utils.Error(w, http.StatusInternalServerError, "server error", err)
+			return
+		}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_ = json.NewEncoder(w).Encode(LoginResponse{
-			Token: token,
-		})
+		utils.JSON(w, http.StatusOK, LoginResponse{Token: token})
 	}
 }
