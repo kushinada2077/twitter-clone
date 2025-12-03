@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"twitter-clone/handlers"
 	"twitter-clone/models"
+	"twitter-clone/router"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -23,17 +23,16 @@ func main() {
 	db := InitDB()
 	fmt.Println("성공!")
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/signup", handlers.SignupHandler(db))
-	mux.HandleFunc("/login", handlers.LoginHandler(db))
+	r := router.NewRouter(db)
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-	fmt.Printf("서버가 %s 포트에서 시작되었습니다!\n", port)
 
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	addr := ":" + port
+	fmt.Printf("서버가 %s 포트에서 시작되었습니다!\n", port)
+	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatal(err)
 	}
 
