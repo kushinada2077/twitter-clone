@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	handlers "twitter-clone/pkg/types"
 )
 
 func JSON(w http.ResponseWriter, code int, body interface{}) {
@@ -23,5 +24,5 @@ func Error(w http.ResponseWriter, code int, message string, details ...any) {
 		log.Printf("[ERROR] %s", message)
 	}
 
-	JSON(w, code, map[string]string{"error": message})
+	JSON(w, code, handlers.ErrorResponse{Error: message})
 }
