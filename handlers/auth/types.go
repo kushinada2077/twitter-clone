@@ -1,8 +1,4 @@
-package types
-
-type contextKey struct{}
-
-var UserIDKey = contextKey{}
+package auth
 
 type SignupRequest struct {
 	Username string `json:"username"`
@@ -21,16 +17,4 @@ type SignupResponse struct {
 
 type LoginResponse struct {
 	Token string `json:"token"`
-}
-
-type FollowResponse struct {
-	Message string `json:"message"`
-}
-
-type UnfollowResponse struct {
-	Message string `json:"message"`
-}
-
-type ErrorResponse struct {
-	Error string `json:"error"`
 }

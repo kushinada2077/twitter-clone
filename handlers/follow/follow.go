@@ -1,8 +1,8 @@
-package handlers
+package follow
 
 import (
 	"net/http"
-	"twitter-clone/pkg/types"
+	"twitter-clone/pkg/domain"
 	"twitter-clone/services"
 	"twitter-clone/utils"
 )
@@ -18,7 +18,7 @@ func NewFollowHandler(s services.FollowService) *FollowHandler {
 }
 
 func (h *FollowHandler) Follow(w http.ResponseWriter, r *http.Request) {
-	followerID, ok := r.Context().Value(types.UserIDKey).(uint)
+	followerID, ok := r.Context().Value(domain.UserIDKey).(uint)
 	if !ok {
 		utils.Error(w, http.StatusUnauthorized, "invalid or missing token")
 		return
@@ -36,11 +36,11 @@ func (h *FollowHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondJSON(w, http.StatusCreated, types.FollowResponse{Message: "follow success"})
+	utils.RespondJSON(w, http.StatusCreated, FollowResponse{Message: "follow success"})
 }
 
 func (h *FollowHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
-	followerID, ok := r.Context().Value(types.UserIDKey).(uint)
+	followerID, ok := r.Context().Value(domain.UserIDKey).(uint)
 	if !ok {
 		utils.Error(w, http.StatusUnauthorized, "invalid or missing token")
 		return
@@ -58,5 +58,5 @@ func (h *FollowHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondJSON(w, http.StatusOK, types.UnfollowResponse{Message: "unfollow success"})
+	utils.RespondJSON(w, http.StatusOK, UnfollowResponse{Message: "unfollow success"})
 }

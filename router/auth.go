@@ -2,12 +2,10 @@ package router
 
 import (
 	"net/http"
-	"twitter-clone/handlers"
-
-	"gorm.io/gorm"
+	"twitter-clone/handlers/auth"
 )
 
-func RegisterAuthRoutes(mux *http.ServeMux, db *gorm.DB) {
-	mux.HandleFunc("/auth/signup", handlers.SignupHandler(db))
-	mux.HandleFunc("/auth/login", handlers.LoginHandler(db))
+func RegisterAuthRoutes(mux *http.ServeMux, authHandler *auth.AuthHandler) {
+	mux.HandleFunc("/auth/signup", authHandler.SignupHandler)
+	mux.HandleFunc("/auth/login", authHandler.LoginHandler)
 }

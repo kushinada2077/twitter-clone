@@ -1,4 +1,4 @@
-package domain
+package domainerrors
 
 import (
 	"net/http"

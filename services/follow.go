@@ -1,7 +1,7 @@
 package services
 
 import (
-	"twitter-clone/pkg/domain"
+	"twitter-clone/pkg/domain/domainerrors"
 	"twitter-clone/repositories"
 )
 
@@ -24,11 +24,11 @@ func NewFollowService(r repositories.FollowRepository, u repositories.UserReposi
 
 func (s *followService) Follow(followerID, followeeID uint) error {
 	if followerID == followeeID {
-		return domain.ErrCannotFollowYourself
+		return domainerrors.ErrCannotFollowYourself
 	}
 
 	if _, err := s.userRepo.GetByID(followeeID); err != nil {
-		return domain.ErrUserNotFound
+		return domainerrors.ErrUserNotFound
 	}
 
 	ok, err := s.followRepo.Exists(followerID, followeeID)
@@ -36,7 +36,7 @@ func (s *followService) Follow(followerID, followeeID uint) error {
 		return err
 	}
 	if ok {
-		return domain.ErrAlreadyFollowing
+		return domainerrors.ErrAlreadyFollowing
 	}
 
 	if err := s.followRepo.Create(followerID, followeeID); err != nil {
@@ -47,11 +47,11 @@ func (s *followService) Follow(followerID, followeeID uint) error {
 
 func (s *followService) Unfollow(followerID, followeeID uint) error {
 	if followerID == followeeID {
-		return domain.ErrCannotUnfollowYourself
+		return domainerrors.ErrCannotUnfollowYourself
 	}
 
 	if _, err := s.userRepo.GetByID(followeeID); err != nil {
-		return domain.ErrUserNotFound
+		return domainerrors.ErrUserNotFound
 	}
 
 	ok, err := s.followRepo.Exists(followerID, followeeID)
@@ -59,7 +59,7 @@ func (s *followService) Unfollow(followerID, followeeID uint) error {
 		return err
 	}
 	if !ok {
-		return domain.ErrFollowNotFound
+		return domainerrors.ErrFollowNotFound
 	}
 
 	if err := s.followRepo.Delete(followerID, followeeID); err != nil {

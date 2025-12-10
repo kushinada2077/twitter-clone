@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strings"
-	"twitter-clone/pkg/types"
+	"twitter-clone/pkg/domain"
 	"twitter-clone/utils"
 )
 
@@ -34,7 +34,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), types.UserIDKey, userID)
+		ctx := context.WithValue(r.Context(), domain.UserIDKey, userID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

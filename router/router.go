@@ -2,7 +2,8 @@ package router
 
 import (
 	"net/http"
-	"twitter-clone/handlers"
+	"twitter-clone/handlers/auth"
+	"twitter-clone/handlers/follow"
 	"twitter-clone/repositories"
 	"twitter-clone/services"
 
@@ -16,9 +17,12 @@ func NewRouter(db *gorm.DB) *http.ServeMux {
 	followRepo := repositories.NewFollowRepository(db)
 
 	followService := services.NewFollowService(followRepo, userRepo)
-	followHandler := handlers.NewFollowHandler(followService)
+	followHandler := follow.NewFollowHandler(followService)
 
-	RegisterAuthRoutes(mux, db)
+	authService := services.NewAuthService(userRepo)
+	authHandler := auth.NewAuthHandler(authService)
+
+	RegisterAuthRoutes(mux, authHandler)
 	RegisterFollowRoutes(mux, followHandler)
 	return mux
 }
