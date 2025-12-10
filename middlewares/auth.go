@@ -4,12 +4,9 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"twitter-clone/pkg/types"
 	"twitter-clone/utils"
 )
-
-type contextKey struct{}
-
-var UserIDKey = contextKey{}
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +34,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), UserIDKey, userID)
+		ctx := context.WithValue(r.Context(), types.UserIDKey, userID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

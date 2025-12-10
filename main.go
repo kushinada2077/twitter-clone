@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"twitter-clone/models"
+	"twitter-clone/pkg/models"
 	"twitter-clone/router"
 
 	"gorm.io/driver/mysql"

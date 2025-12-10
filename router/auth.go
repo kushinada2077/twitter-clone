@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterAuthRoutesmux(mux *http.ServeMux, db *gorm.DB) {
+func RegisterAuthRoutes(mux *http.ServeMux, db *gorm.DB) {
 	mux.HandleFunc("/auth/signup", handlers.SignupHandler(db))
 	mux.HandleFunc("/auth/login", handlers.LoginHandler(db))
 }

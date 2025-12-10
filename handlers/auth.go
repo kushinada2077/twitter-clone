@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-	"twitter-clone/models"
+	"twitter-clone/pkg/models"
+	"twitter-clone/pkg/types"
+
 	"twitter-clone/utils"
 
 	"gorm.io/gorm"
@@ -13,7 +15,7 @@ import (
 func SignupHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var req SignupRequest
+		var req types.SignupRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			utils.Error(w, http.StatusBadRequest, "invalid JSON", err)
 			return
@@ -58,7 +60,7 @@ func SignupHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		utils.JSON(w, http.StatusCreated, SignupResponse{
+		utils.JSON(w, http.StatusCreated, types.SignupResponse{
 			Message: "user created",
 			UserID:  user.ID,
 		})
@@ -68,7 +70,7 @@ func SignupHandler(db *gorm.DB) http.HandlerFunc {
 func LoginHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var req LoginRequest
+		var req types.LoginRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			utils.Error(w, http.StatusBadRequest, "invalid JSON", err)
 			return
@@ -100,6 +102,6 @@ func LoginHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		utils.JSON(w, http.StatusOK, LoginResponse{Token: token})
+		utils.JSON(w, http.StatusOK, types.LoginResponse{Token: token})
 	}
 }
