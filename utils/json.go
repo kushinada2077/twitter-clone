@@ -7,7 +7,7 @@ import (
 	handlers "twitter-clone/pkg/types"
 )
 
-func JSON(w http.ResponseWriter, code int, body interface{}) {
+func RespondJSON(w http.ResponseWriter, code int, body interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	if err := json.NewEncoder(w).Encode(body); err != nil {
@@ -17,6 +17,10 @@ func JSON(w http.ResponseWriter, code int, body interface{}) {
 	}
 }
 
+func DecodeJSON(r *http.Request, v any) error {
+	return json.NewDecoder(r.Body).Decode(v)
+}
+
 func Error(w http.ResponseWriter, code int, message string, details ...any) {
 	if len(details) > 0 {
 		log.Printf("[ERROR] %s | details: %v", message, details)
@@ -24,5 +28,5 @@ func Error(w http.ResponseWriter, code int, message string, details ...any) {
 		log.Printf("[ERROR] %s", message)
 	}
 
-	JSON(w, code, handlers.ErrorResponse{Error: message})
+	RespondJSON(w, code, handlers.ErrorResponse{Error: message})
 }

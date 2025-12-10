@@ -36,7 +36,7 @@ func (h *FollowHandler) Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSON(w, http.StatusCreated, types.FollowResponse{Message: "follow success"})
+	utils.RespondJSON(w, http.StatusCreated, types.FollowResponse{Message: "follow success"})
 }
 
 func (h *FollowHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
@@ -58,5 +58,5 @@ func (h *FollowHandler) Unfollow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.JSON(w, http.StatusOK, types.UnfollowResponse{Message: "unfollow success"})
+	utils.RespondJSON(w, http.StatusOK, types.UnfollowResponse{Message: "unfollow success"})
 }
